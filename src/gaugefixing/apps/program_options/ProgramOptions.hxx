@@ -140,6 +140,14 @@ public:
 		return seed;
 	}
 
+	string get_output_SA_test() const {
+		return output_SA_test;
+	}
+
+	string get_output_conf() const {
+                return output_conf;
+        }
+
 private:
 	boost::program_options::variables_map options_vm;
 	boost::program_options::options_description options_desc;
@@ -149,6 +157,8 @@ private:
 
 	// variables
 	string configFile;
+	string output_SA_test;
+	string output_conf;
 
 	int deviceNumber;
 
@@ -200,6 +210,8 @@ int ProgramOptions::init( int argc, char* argv[] )
 			("help", "produce help message")
 
 			("config-file", boost::program_options::value<string>(&configFile), "config file (command line arguments overwrite config file settings)")
+			("output_SA_test", boost::program_options::value<string>(&output_SA_test), "output for temperature-functional data")
+			("output_conf", boost::program_options::value<string>(&output_conf), "path for output configuration")
 
 			("devicenumber,D", boost::program_options::value<int>(&deviceNumber)->default_value(-1), "number of the CUDA device (or -1 for auto selection)")
 

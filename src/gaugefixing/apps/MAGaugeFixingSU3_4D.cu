@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 	int threadsPerBlock = NSB*8; // NSB sites are updated within a block (8 threads are needed per site)
 	int numBlocks = s.getLatticeSize()/2/NSB; // // half of the lattice sites (a parity) are updated in a kernel call
 
-	
+
 	GaugeFixingStats<Ndim,Nc,MAGKernelsSU3,AVERAGE> gaugeStats( dU, HOST_CONSTANTS::SIZE );
 
 	// timer to measure kernel times
@@ -134,6 +134,11 @@ int main(int argc, char* argv[])
 	long srTotalStepnumber = 0;
 	double orTotalKernelTime = 0; // sum up total kernel time for OR
 	long orTotalStepnumber = 0;
+
+	ofstream output;
+	output.precision(17);
+	output.open(options.get_output_SA_test().c_str());
+	output << "copy,functional"<<endl;
 
 	FileIterator fi( options );
 	for( fi.reset(); fi.hasNext(); fi.next() )
@@ -196,18 +201,28 @@ int main(int argc, char* argv[])
 			if( options.getSaSteps() > 0 ) printf( "SIMULATED ANNEALING\n" );
 			float temperature = options.getSaMax();
 			float tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
+			float temperature_min = options.getSaMin();
 
 			kernelTimer.reset();
 			kernelTimer.start();
-			for( int i = 0; i < options.getSaSteps(); i++ )
+			int i = 0;
+			//for( int i = 0; i < options.getSaSteps(); i++ )
+			do
 			{
-				MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 0, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
-				MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 1, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
+				if((temperature <= 0.8) && (temperature >= 0.7))
+					tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps()/15;
+				else
+					tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
 
-				for( int mic = 0; mic < options.getSaMicroupdates(); mic++ )
-				{
-					MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 0 );
-					MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 1 );
+				for(int j = 0;j < 5;j++){
+					MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 0, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
+					MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 1, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
+
+					for( int mic = 0; mic < options.getSaMicroupdates(); mic++ )
+					{
+						MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 0 );
+						MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 1 );
+					}
 				}
 
 				if( i % options.getReproject() == 0 )
@@ -215,13 +230,17 @@ int main(int argc, char* argv[])
 					CommonKernelsSU3::projectSU3( s.getLatticeSize()/32,32, dU, HOST_CONSTANTS::getPtrToDeviceSize() );
 				}
 
-				if( i % options.getCheckPrecision() == 0 )
+				/*if( i % options.getCheckPrecision() == 0 )
 				{
 					gaugeStats.generateGaugeQuality();
 					printf( "%d\t\t%1.10f\t\t%e\n", i, gaugeStats.getCurrentGff(), gaugeStats.getCurrentA() );
-				}
+				}*/
+				//gaugeStats.generateGaugeQuality();
+				//output << temperature<<","<<gaugeStats.getCurrentGff()<<endl;
 				temperature -= tempStep;
-			}
+
+				i++;
+			}while(temperature >= temperature_min);
 			cudaDeviceSynchronize();
 			kernelTimer.stop();
 			cout << "kernel time: " << kernelTimer.getTime() << " s"<< endl;
@@ -289,6 +308,9 @@ int main(int argc, char* argv[])
 			// reconstruct third line
 			CommonKernelsSU3::projectSU3( s.getLatticeSize()/32,32, dU, HOST_CONSTANTS::getPtrToDeviceSize() );
 
+			//gaugeStats.generateGaugeQuality();
+                        output << copy<<","<<gaugeStats.getCurrentGff()<<endl;
+
 			// check for best copy
 			if( gaugeStats.getCurrentGff() > bestGff )
 			{
@@ -304,22 +326,22 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		
+
 		//saving file
 		if( !options.isSetHot() )
 		{
-			cout << "saving " << fi.getOutputFilename() << " as " << options.getFType() << endl;
+			cout << "saving " << options.get_output_conf() << " as " << options.getFType() << endl;
 
 			switch( options.getFType() )
 			{
 			case VOGT:
-				loadOk = lfVogt.save( s, fi.getOutputFilename(), U );
+				loadOk = lfVogt.save( s, options.get_output_conf(), U );
 				break;
 			case PLAIN:
-				loadOk = lfPlain.save( s, fi.getOutputFilename(), U );
+				loadOk = lfPlain.save( s, options.get_output_conf(), U );
 				break;
 			case HEADERONLY:
-				loadOk = lfHeaderOnly.save( s, fi.getOutputFilename(), U );
+				loadOk = lfHeaderOnly.save( s, options.get_output_conf(), U );
 				break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";
@@ -344,5 +366,7 @@ int main(int argc, char* argv[])
 	long orFlops = 2252+22-8;
 	cout << "Overrelaxation: " << (double)((long)orFlops*(long)s.getLatticeSize()*(long)orTotalStepnumber)/orTotalKernelTime/1.0e9 << " GFlops at "
 				<< (double)((long)192*(long)s.getLatticeSize()*(long)(orTotalStepnumber)*(long)sizeof(Real))/orTotalKernelTime/1.0e9 << "GB/s memory throughput." << endl;
+
+	output.close();
 
 }
