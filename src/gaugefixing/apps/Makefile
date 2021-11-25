@@ -18,7 +18,7 @@
 #
 ################################################################################
 #
-# Makefile 
+# Makefile
 # ========
 # examples:
 #
@@ -47,7 +47,7 @@ ifeq ($(DPUPDATES),true)
 DPREC += -DUSE_DP_ORUPDATE -DUSE_DP_MICROUPDATE -DUSE_DP_SAUPDATE # TODO add the flags for SA,SR
 endif
 
-# define 
+# define
 CCDEFS = $(DPREC) -D_T_=$(T) -D_X_=$(X) -D_NSB_=$(NSB)
 CUDEFS = $(CCDEFS)
 # gcc compiler
@@ -59,17 +59,20 @@ CUOBJ = $(APP)_$(PREC)_N$(X)T$(T).o
 # libs for the linking process
 LIBS = -L/home/itep/kudrov/installed/boost/lib -lboost_program_options
 # flags for the NVCC compiler
-CUFLAGS = --ptxas-options=-v -arch=sm_35 -use_fast_math -Xptxas -dlcm=cg
+CUFLAGS = --ptxas-options=-v -arch=sm_60 -use_fast_math -Xptxas -dlcm=cg
 # flags for the CC compiler
 CCFLAGS = -O3 -I/home/itep/kudrov/installed/boost/include
 
 CUFLAGS += $(CCFLAGS)
 
-$(APP): $(CUOBJ) Chronotimer.o GlobalConstants_$(PREC)_N$(X)T$(T).o
-	$(NVCC) -o $@_$(PREC)_N$(X)T$(T) $(CUOBJ) Chronotimer.o GlobalConstants_$(PREC)_N$(X)T$(T).o $(LIBS)
+ILDG_OBJ=ildg.o lime_fseeko.o lime_header.o lime_reader.o lime_utils.o lime_writer.o
+
+$(APP): $(CUOBJ) $(ILDG_OBJ) Chronotimer.o GlobalConstants_$(PREC)_N$(X)T$(T).o
+	$(NVCC) -o $@_$(PREC)_N$(X)T$(T) $(CUOBJ) $(ILDG_OBJ) Chronotimer.o GlobalConstants_$(PREC)_N$(X)T$(T).o $(LIBS)
+	rm -f *.o
 
 %_$(PREC)_N$(X)T$(T).o: %.cu
-	$(NVCC) -c $(CUFLAGS) $< $(CUDEFS) -o $@ 
+	$(NVCC) -c $(CUFLAGS) $< $(CUDEFS) -o $@
 
 %_$(PREC)_N$(X)T$(T).o: %.cpp
 	$(CC) -c $(CCFLAGS) $< $(CCDEFS)
@@ -82,7 +85,25 @@ Chronotimer.o: ../../util/timer/Chronotimer.cc
 GlobalConstants_$(PREC)_N$(X)T$(T).o: ../GlobalConstants.cu
 	$(NVCC) -c $(CUDEFS) $(CUFLAGS) ../GlobalConstants.cu -o $@
 
-clean: 
+ildg.o: ildg.cpp
+	g++ -c $(CCDEFS) -O3 ildg.cpp -o ildg.o
+
+lime_fseeko.o: src/c-lime/lime_fseeko.c
+	g++ -c -O3 src/c-lime/lime_fseeko.c -o lime_fseeko.o
+
+lime_header.o: src/c-lime/lime_header.c
+	g++ -c -O3 src/c-lime/lime_header.c -o lime_header.o
+
+lime_reader.o: src/c-lime/lime_reader.c
+	g++ -c -O3 src/c-lime/lime_reader.c -o lime_reader.o
+
+lime_utils.o: src/c-lime/lime_utils.c
+	g++ -c -O3 src/c-lime/lime_utils.c -o lime_utils.o
+
+lime_writer.o: src/c-lime/lime_writer.c
+	g++ -c -O3 src/c-lime/lime_writer.c -o lime_writer.o
+
+clean:
 	rm -f *.o $(APP)
 
 

@@ -54,6 +54,9 @@ const int arraySize = Nt*Nx*Ny*Nz*Ndim*Nc*Nc*2;
 typedef StandardPattern<SiteCoord<Ndim,NO_SPLIT>,Ndim,Nc> Standard;
 typedef GpuPattern< SiteCoord<Ndim,FULL_SPLIT>,Ndim,Nc> Gpu;
 
+void readILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
+void writeILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const char *output_name, const short SIZE[4], Real *U, int steps);
+
 int main(int argc, char* argv[])
 {
 	Chronotimer allTimer;
@@ -87,6 +90,9 @@ int main(int argc, char* argv[])
 
 	// SiteCoord is faster than SiteIndex when loading files
 	SiteCoord<4,FULL_SPLIT> s(HOST_CONSTANTS::SIZE);
+
+	cout<<"size of the lattice: Nt = "<<HOST_CONSTANTS::SIZE[0]<<", Nx = "<<HOST_CONSTANTS::SIZE[1]
+	<<", Ny = "<<HOST_CONSTANTS::SIZE[2]<<", Nz = "<<HOST_CONSTANTS::SIZE[3]<<endl;
 
 
 	// allocate Memory
@@ -135,14 +141,15 @@ int main(int argc, char* argv[])
 	double orTotalKernelTime = 0; // sum up total kernel time for OR
 	long orTotalStepnumber = 0;
 
-	ofstream output;
-	output.precision(17);
-	output.open(options.get_output_SA_test().c_str());
-	output << "copy,functional"<<endl;
-
 	FileIterator fi( options );
 	for( fi.reset(); fi.hasNext(); fi.next() )
 	{
+
+		ofstream output;
+		output.precision(17);
+		output.open(fi.getOutputFunctional().c_str());
+		output << "copy,functional"<<endl;
+
 		bool loadOk;
 
 		if( !options.isSetHot() ) // load a file
@@ -157,6 +164,10 @@ int main(int argc, char* argv[])
 				break;
 			case HEADERONLY:
 				loadOk = lfHeaderOnly.load( s, fi.getFilename(), U );
+				break;
+			case ILDG:
+				loadOk = true;
+				readILDG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
 				break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";
@@ -330,24 +341,30 @@ int main(int argc, char* argv[])
 		//saving file
 		if( !options.isSetHot() )
 		{
-			cout << "saving " << options.get_output_conf() << " as " << options.getFType() << endl;
+			cout << "saving " << fi.getOutputFilename() << " as " << options.getFType() << endl;
 
 			switch( options.getFType() )
 			{
 			case VOGT:
-				loadOk = lfVogt.save( s, options.get_output_conf(), U );
+				loadOk = lfVogt.save( s, fi.getOutputFilename(), U );
 				break;
 			case PLAIN:
-				loadOk = lfPlain.save( s, options.get_output_conf(), U );
+				loadOk = lfPlain.save( s, fi.getOutputFilename(), U );
 				break;
 			case HEADERONLY:
-				loadOk = lfHeaderOnly.save( s, options.get_output_conf(), U );
+				loadOk = lfHeaderOnly.save( s, fi.getOutputFilename(), U );
+				break;
+			case ILDG:
+				loadOk = true;
+				writeILDG(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
 				break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";
 				exit(1);
 			}
 		}
+
+		output.close();
 	}
 
 	allTimer.stop();
@@ -367,6 +384,6 @@ int main(int argc, char* argv[])
 	cout << "Overrelaxation: " << (double)((long)orFlops*(long)s.getLatticeSize()*(long)orTotalStepnumber)/orTotalKernelTime/1.0e9 << " GFlops at "
 				<< (double)((long)192*(long)s.getLatticeSize()*(long)(orTotalStepnumber)*(long)sizeof(Real))/orTotalKernelTime/1.0e9 << "GB/s memory throughput." << endl;
 
-	output.close();
+	//output.close();
 
 }

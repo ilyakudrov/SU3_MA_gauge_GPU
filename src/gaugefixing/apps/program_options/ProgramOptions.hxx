@@ -75,7 +75,7 @@ public:
 	int getGaugeCopies() const {
 		return gaugeCopies;
 	}
-	
+
 	bool isSetHot() const {
 		return setHot;
 	}
@@ -140,13 +140,17 @@ public:
 		return seed;
 	}
 
-	string get_output_SA_test() const {
-		return output_SA_test;
+	string get_output_SA_functional() const {
+		return output_SA_functional;
 	}
 
-	string get_output_conf() const {
-                return output_conf;
-        }
+	string getOutConfPath() const {
+        return outputConf;
+    }
+
+	string getOutputEnding() const {
+		return outputEnding;
+	}
 
 private:
 	boost::program_options::variables_map options_vm;
@@ -157,8 +161,9 @@ private:
 
 	// variables
 	string configFile;
-	string output_SA_test;
-	string output_conf;
+	string output_SA_functional;
+	string outputConf;
+	string outputEnding;
 
 	int deviceNumber;
 
@@ -172,7 +177,7 @@ private:
 	string fOutputAppendix;
 
 	ReinterpretReal reinterpret;
-	
+
 	bool setHot;
 
 	long seed;
@@ -210,12 +215,13 @@ int ProgramOptions::init( int argc, char* argv[] )
 			("help", "produce help message")
 
 			("config-file", boost::program_options::value<string>(&configFile), "config file (command line arguments overwrite config file settings)")
-			("output_SA_test", boost::program_options::value<string>(&output_SA_test), "output for temperature-functional data")
-			("output_conf", boost::program_options::value<string>(&output_conf), "path for output configuration")
+			("output_SA_functional", boost::program_options::value<string>(&output_SA_functional), "output for temperature-functional data (part before numbering starts)")
+			("output_conf", boost::program_options::value<string>(&outputConf), "path for output configuration (part before numbering starts)")
+			("output_ending", boost::program_options::value<string>(&outputEnding)->default_value(""), "file ending to append to output_conf (default: "")")
 
 			("devicenumber,D", boost::program_options::value<int>(&deviceNumber)->default_value(-1), "number of the CUDA device (or -1 for auto selection)")
 
-			("ftype", boost::program_options::value<FileType>(&fType), "type of configuration (PLAIN, HEADERONLY, VOGT)")
+			("ftype", boost::program_options::value<FileType>(&fType), "type of configuration (PLAIN, HEADERONLY, VOGT, ILDG)")
 			("fbasename", boost::program_options::value<string>(&fBasename), "file basename (part before numbering starts)")
 			("fending", boost::program_options::value<string>(&fEnding)->default_value(".vogt"), "file ending to append to basename (default: .vogt)")
 			("fnumberformat", boost::program_options::value<int>(&fNumberformat)->default_value(1), "number format for file index: 1 = (0,1,2,...,10,11), 2 = (00,01,...), 3 = (000,001,...),...")
@@ -225,7 +231,7 @@ int ProgramOptions::init( int argc, char* argv[] )
 			("fappendix", boost::program_options::value<string>(&fOutputAppendix)->default_value("gaugefixed_"), "appendix to be inserted beween (input-)filename and number")
 
 			("reinterpret", boost::program_options::value<ReinterpretReal>(&reinterpret)->default_value(STANDARD), "reinterpret Real datatype (STANDARD = do nothing, FLOAT = read input as float and cast to Real, DOUBLE = ...)")
-			
+
 			("hotgaugefield", boost::program_options::value<bool>(&setHot)->default_value(false), "don't load gauge field; fill with random SU(3).")
 
 			("seed", boost::program_options::value<long>(&seed)->default_value(1), "RNG seed")

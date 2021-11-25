@@ -39,6 +39,7 @@ public:
 	void reset();
 	string getFilename();
 	string getOutputFilename();
+	string getOutputFunctional();
 private:
 	int currentId;
 	ProgramOptions options;
@@ -82,7 +83,14 @@ string FileIterator::getFilename()
 string FileIterator::getOutputFilename()
 {
 	stringstream filename(stringstream::out);
-	filename << options.getFBasename() << options.getFOutputAppendix() << setw( options.getFNumberformat() ) << setfill( '0' ) << currentId << options.getFEnding();
+	filename << options.getOutConfPath() << options.getFOutputAppendix() << setw( options.getFNumberformat() ) << setfill( '0' ) << currentId << options.getOutputEnding();
+	return filename.str();
+}
+
+string FileIterator::getOutputFunctional()
+{
+	stringstream filename(stringstream::out);
+	filename << options.get_output_SA_functional()<<"_"<<setw( options.getFNumberformat() ) << setfill( '0' ) << currentId;
 	return filename.str();
 }
 

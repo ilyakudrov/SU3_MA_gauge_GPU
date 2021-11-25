@@ -57,7 +57,7 @@ std::ostream& operator<<(std::ostream& out, ReinterpretReal& t)
 
 
 
-enum FileType {PLAIN, HEADERONLY, VOGT};
+enum FileType {PLAIN, HEADERONLY, VOGT, ILDG};
 
 std::istream& operator>>(std::istream& in, FileType& t)
 {
@@ -69,6 +69,8 @@ std::istream& operator>>(std::istream& in, FileType& t)
         t = HEADERONLY;
     else if (boost::iequals(token, "VOGT" ) )
     	t = VOGT;
+    else if (boost::iequals(token, "ILDG" ) )
+    	t = ILDG;
     return in;
 }
 
@@ -81,6 +83,8 @@ std::ostream& operator<<(std::ostream& out, FileType& t)
     	token = "HEADERONLY";
     else if (t == VOGT )
     	token = "VOGT";
+    else if (t == ILDG )
+    	token = "ILDG";
     out << token;
     return out;
 }
