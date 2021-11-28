@@ -1,13 +1,14 @@
 #include "include/c-lime/lime.h"
 #include "include/c-lime/lime_config.h"
 #include "include/c-lime/lime_fixed_types.h"
-#include "stdlib.h"
+#include <cstdlib>
 #include "string.h"
 #include "../../lattice/datatype/datatypes.h"
 #include "../../lattice/SiteCoord.hxx"
 #include "../../lattice/access_pattern/GpuPattern.hxx"
 #include <iostream>
 #include <string>
+#include <sstream>
 
 double reverseValue(const char *data) {
   double result;
@@ -188,8 +189,11 @@ void writeILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const char *out
 
       std::string data_new;
 
-      if (strcmp(lime_type, "xlf-info") == 0)
-        data_new = std::string(data) + " SA steps " + std::string(std::to_string(steps));
+      if (strcmp(lime_type, "xlf-info") == 0){
+	std::stringstream filename(std::stringstream::out);
+	filename << std::string(data) + " SA steps "<<steps;
+        data_new = filename.str();
+      }
       else
         data_new = std::string(data);
 
