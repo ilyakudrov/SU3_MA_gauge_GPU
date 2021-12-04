@@ -322,6 +322,30 @@ int main(int argc, char* argv[])
 			//gaugeStats.generateGaugeQuality();
                         output << copy<<","<<gaugeStats.getCurrentGff()<<endl;
 
+			if(copy < options.getGaugeCopies() - 1 && options.getSaveEach()){
+				stringstream filename(stringstream::out);
+				filename << fi.getOutputFilename() << "_" << copy + 1;
+				string copy_path = filename.str();
+				switch( options.getFType() ) {
+					case VOGT:
+						loadOk = lfVogt.save( s, copy_path , U );
+						break;
+					case PLAIN:
+						loadOk = lfPlain.save( s, copy_path, U );
+						break;
+					case HEADERONLY:
+						loadOk = lfHeaderOnly.save( s, copy_path, U );
+						break;
+					case ILDG:
+						loadOk = true;
+						writeILDG(s, fi.getFilename().c_str(), (copy_path).c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
+						break;
+					default:
+						cout << "Filetype not set to a known value. Exiting";
+						exit(1);
+				}
+			}
+
 			// check for best copy
 			if( gaugeStats.getCurrentGff() > bestGff )
 			{

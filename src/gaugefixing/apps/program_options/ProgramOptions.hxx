@@ -152,6 +152,10 @@ public:
 		return outputEnding;
 	}
 
+	bool getSaveEach() const {
+		return saveEach;
+	}
+
 private:
 	boost::program_options::variables_map options_vm;
 	boost::program_options::options_description options_desc;
@@ -164,6 +168,7 @@ private:
 	string output_SA_functional;
 	string outputConf;
 	string outputEnding;
+	bool saveEach;
 
 	int deviceNumber;
 
@@ -218,6 +223,7 @@ int ProgramOptions::init( int argc, char* argv[] )
 			("output_SA_functional", boost::program_options::value<string>(&output_SA_functional), "output for temperature-functional data (part before numbering starts)")
 			("output_conf", boost::program_options::value<string>(&outputConf), "path for output configuration (part before numbering starts)")
 			("output_ending", boost::program_options::value<string>(&outputEnding)->default_value(""), "file ending to append to output_conf (default: "")")
+			("save_each", boost::program_options::value<bool>(&saveEach)->default_value(false), "true - save each gauge copy, false - not (default: false)")
 
 			("devicenumber,D", boost::program_options::value<int>(&deviceNumber)->default_value(-1), "number of the CUDA device (or -1 for auto selection)")
 

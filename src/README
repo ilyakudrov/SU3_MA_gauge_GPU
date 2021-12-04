@@ -270,5 +270,6 @@ Simulated Annealing (SA) with micro steps (MS).
   --output_SA_functional            output for temperature-functional data (part before numbering starts)
   --output_conf                     path for output configuration (part before numbering starts)\
   --output_ending                   file ending to append to output_conf (default: "")
+  --save_each                       true - save each gauge copy, false - not (default: false)
 
 
