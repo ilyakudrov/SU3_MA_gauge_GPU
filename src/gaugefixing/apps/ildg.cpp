@@ -32,6 +32,7 @@ void readILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE
   int status;
   char *lime_type;
   n_uint64_t nbytes;
+ 
   double *v;
   while ((status = limeReaderNextRecord(reader)) != LIME_EOF) {
 
