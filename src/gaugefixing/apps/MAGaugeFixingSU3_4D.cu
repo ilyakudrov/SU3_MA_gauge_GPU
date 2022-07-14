@@ -57,6 +57,9 @@ typedef GpuPattern< SiteCoord<Ndim,FULL_SPLIT>,Ndim,Nc> Gpu;
 void readILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
 void writeILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const char *output_name, const short SIZE[4], Real *U, int steps);
 
+bool readQCDSTAG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
+bool writeQCDSTAG(SiteCoord<4,FULL_SPLIT> s, const char *output_name, const short SIZE[4], Real *U);
+
 int main(int argc, char* argv[])
 {
 	Chronotimer allTimer;
@@ -168,6 +171,10 @@ int main(int argc, char* argv[])
 			case ILDG:
 				loadOk = true;
 				readILDG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+				break;
+			case QCDSTAG:
+				loadOk = true;
+				readQCDSTAG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
 				break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";
@@ -332,7 +339,7 @@ int main(int argc, char* argv[])
 				cudaMemcpy( U, dU, arraySize*sizeof(Real), cudaMemcpyDeviceToHost );
 
 				if(copy < options.getGaugeCopies() - 1 && options.getSaveEach()){
-
+						std::cout<<"ok"<<std::endl;
 				stringstream filename(stringstream::out);
 				filename << fi.getOutputFilename() << "_" << copy + 1;
 				string copy_path = filename.str();
@@ -349,6 +356,9 @@ int main(int argc, char* argv[])
 					case ILDG:
 						loadOk = true;
 						writeILDG(s, fi.getFilename().c_str(), (copy_path).c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
+						break;
+					case QCDSTAG:
+						loadOk = writeQCDSTAG(s, (copy_path).c_str(), HOST_CONSTANTS::SIZE, U);
 						break;
 					default:
 						cout << "Filetype not set to a known value. Exiting";
@@ -382,6 +392,9 @@ int main(int argc, char* argv[])
 			case ILDG:
 				loadOk = true;
 				writeILDG(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
+				break;
+			case QCDSTAG:
+				loadOk = writeQCDSTAG(s, fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U);
 				break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";

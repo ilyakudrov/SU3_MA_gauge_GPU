@@ -65,7 +65,7 @@ CCFLAGS = -O3 -I/home/itep/kudrov/installed/boost/include
 
 CUFLAGS += $(CCFLAGS)
 
-ILDG_OBJ=ildg.o lime_fseeko.o lime_header.o lime_reader.o lime_utils.o lime_writer.o
+ILDG_OBJ=qcdstag.o ildg.o lime_fseeko.o lime_header.o lime_reader.o lime_utils.o lime_writer.o
 
 $(APP): $(CUOBJ) $(ILDG_OBJ) Chronotimer.o GlobalConstants_$(PREC)_N$(X)T$(T).o
 	$(NVCC) -o $@_$(PREC)_N$(X)T$(T) $(CUOBJ) $(ILDG_OBJ) Chronotimer.o GlobalConstants_$(PREC)_N$(X)T$(T).o $(LIBS)
@@ -87,6 +87,9 @@ GlobalConstants_$(PREC)_N$(X)T$(T).o: ../GlobalConstants.cu
 
 ildg.o: ildg.cpp
 	g++ -c $(CCDEFS) -O3 ildg.cpp -o ildg.o
+
+qcdstag.o: qcdstag.cpp
+	g++ -c $(CCDEFS) -O3 qcdstag.cpp -o qcdstag.o
 
 lime_fseeko.o: src/c-lime/lime_fseeko.c
 	g++ -c -O3 src/c-lime/lime_fseeko.c -o lime_fseeko.o

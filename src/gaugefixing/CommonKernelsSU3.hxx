@@ -52,7 +52,7 @@ public:
 	{
 		COMKSU3::projectSU3<<<a,b>>>( U, ptrToDeviceSize );
 	};
-	
+
 	static void setHot( int a, int b, Real *U, lat_coord_t* ptrToDeviceSize, int rngSeed, int rngCounter )
 	{
 		COMKSU3::setHot<<<a,b>>>( U, ptrToDeviceSize, rngSeed, rngCounter );
@@ -103,7 +103,7 @@ __global__ void setHot( Real *U, lat_coord_t* ptrToDeviceSize, int rngSeed, int 
 	PhiloxWrapper rng( site, rngSeed, rngCounter );
 
 	Quaternion<Real> q;
-	
+
 	for( int mu = 0; mu < 4; mu++ )
 	{
 		TLink linkUp( U, s, mu );
@@ -113,7 +113,7 @@ __global__ void setHot( Real *U, lat_coord_t* ptrToDeviceSize, int rngSeed, int 
 		SU3<Matrix<Complex<Real>,Nc> > locU(locMat);
 
 		locU.identity();
-		
+
 		for( int i=0; i<2; i++ )
 			for( int j=i+1; j<3; j++ )
 			{
@@ -121,7 +121,7 @@ __global__ void setHot( Real *U, lat_coord_t* ptrToDeviceSize, int rngSeed, int 
 				q[1] = rng.rand()*2.0-1.0;
 				q[2] = rng.rand()*2.0-1.0;
 				q[3] = rng.rand()*2.0-1.0;
-				
+
 				q.projectSU2();
 				locU.rightSubgroupMult( i, j, &q );
 			}

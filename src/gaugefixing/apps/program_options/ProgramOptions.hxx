@@ -31,8 +31,7 @@
 
 #include <fstream>
 #include <string>
-
-using namespace std;
+#include <iostream>
 
 class ProgramOptions
 {
@@ -44,11 +43,11 @@ public:
 		return deviceNumber;
 	}
 
-	string getFBasename() const {
+	std::string getFBasename() const {
 		return fBasename;
 	}
 
-	string getFEnding() const {
+	std::string getFEnding() const {
 		return fEnding;
 	}
 
@@ -68,7 +67,7 @@ public:
 		return fType;
 	}
 
-	string getFOutputAppendix() const {
+	std::string getFOutputAppendix() const {
 		return fOutputAppendix;
 	}
 
@@ -140,15 +139,15 @@ public:
 		return seed;
 	}
 
-	string get_output_SA_functional() const {
+	std::string get_output_SA_functional() const {
 		return output_SA_functional;
 	}
 
-	string getOutConfPath() const {
+	std::string getOutConfPath() const {
         return outputConf;
     }
 
-	string getOutputEnding() const {
+	std::string getOutputEnding() const {
 		return outputEnding;
 	}
 
@@ -164,22 +163,22 @@ private:
 //	char* argv[];
 
 	// variables
-	string configFile;
-	string output_SA_functional;
-	string outputConf;
-	string outputEnding;
+	std::string configFile;
+	std::string output_SA_functional;
+	std::string outputConf;
+	std::string outputEnding;
 	bool saveEach;
 
 	int deviceNumber;
 
 	FileType fType;
-	string fBasename;
-	string fEnding;
+	std::string fBasename;
+	std::string fEnding;
 	int fNumberformat;
 	int fStartnumber;
 	int fStepnumber;
 	int nconf;
-	string fOutputAppendix;
+	std::string fOutputAppendix;
 
 	ReinterpretReal reinterpret;
 
@@ -219,22 +218,22 @@ int ProgramOptions::init( int argc, char* argv[] )
 	options_desc.add_options()
 			("help", "produce help message")
 
-			("config-file", boost::program_options::value<string>(&configFile), "config file (command line arguments overwrite config file settings)")
-			("output_SA_functional", boost::program_options::value<string>(&output_SA_functional), "output for temperature-functional data (part before numbering starts)")
-			("output_conf", boost::program_options::value<string>(&outputConf), "path for output configuration (part before numbering starts)")
-			("output_ending", boost::program_options::value<string>(&outputEnding)->default_value(""), "file ending to append to output_conf (default: "")")
+			("config-file", boost::program_options::value<std::string>(&configFile), "config file (command line arguments overwrite config file settings)")
+			("output_SA_functional", boost::program_options::value<std::string>(&output_SA_functional), "output for temperature-functional data (part before numbering starts)")
+			("output_conf", boost::program_options::value<std::string>(&outputConf), "path for output configuration (part before numbering starts)")
+			("output_ending", boost::program_options::value<std::string>(&outputEnding)->default_value(""), "file ending to append to output_conf (default: "")")
 			("save_each", boost::program_options::value<bool>(&saveEach)->default_value(false), "true - save each gauge copy, false - not (default: false)")
 
 			("devicenumber,D", boost::program_options::value<int>(&deviceNumber)->default_value(-1), "number of the CUDA device (or -1 for auto selection)")
 
-			("ftype", boost::program_options::value<FileType>(&fType), "type of configuration (PLAIN, HEADERONLY, VOGT, ILDG)")
-			("fbasename", boost::program_options::value<string>(&fBasename), "file basename (part before numbering starts)")
-			("fending", boost::program_options::value<string>(&fEnding)->default_value(".vogt"), "file ending to append to basename (default: .vogt)")
+			("ftype", boost::program_options::value<FileType>(&fType), "type of configuration (PLAIN, HEADERONLY, VOGT, ILDG, QCDSTAG)")
+			("fbasename", boost::program_options::value<std::string>(&fBasename), "file basename (part before numbering starts)")
+			("fending", boost::program_options::value<std::string>(&fEnding)->default_value(".vogt"), "file ending to append to basename (default: .vogt)")
 			("fnumberformat", boost::program_options::value<int>(&fNumberformat)->default_value(1), "number format for file index: 1 = (0,1,2,...,10,11), 2 = (00,01,...), 3 = (000,001,...),...")
 			("fstartnumber", boost::program_options::value<int>(&fStartnumber)->default_value(0), "file index number to start from (startnumber, ..., startnumber+nconf-1")
 			("fstepnumber", boost::program_options::value<int>(&fStepnumber)->default_value(1), "load every <fstepnumber>-th file")
 			("nconf,m", boost::program_options::value<int>(&nconf)->default_value(1), "how many files to gaugefix")
-			("fappendix", boost::program_options::value<string>(&fOutputAppendix)->default_value("gaugefixed_"), "appendix to be inserted beween (input-)filename and number")
+			("fappendix", boost::program_options::value<std::string>(&fOutputAppendix)->default_value("gaugefixed_"), "appendix to be inserted beween (input-)filename and number")
 
 			("reinterpret", boost::program_options::value<ReinterpretReal>(&reinterpret)->default_value(STANDARD), "reinterpret Real datatype (STANDARD = do nothing, FLOAT = read input as float and cast to Real, DOUBLE = ...)")
 
@@ -268,13 +267,13 @@ int ProgramOptions::init( int argc, char* argv[] )
 			options(options_desc).positional(options_p).run(), options_vm);
 	boost::program_options::notify(options_vm);
 
-	ifstream cfg( configFile.c_str() );
+	std::ifstream cfg( configFile.c_str() );
 	boost::program_options::store(boost::program_options::parse_config_file( cfg, options_desc), options_vm);
 	boost::program_options::notify(options_vm);
 
 	if (options_vm.count("help")) {
-		cout << "Usage: " << argv[0] << " [options] [config-file]" << endl;
-		cout << options_desc << "\n";
+		std::cout << "Usage: " << argv[0] << " [options] [config-file]" << std::endl;
+		std::cout << options_desc << "\n";
 		return 1;
 	}
 	return 0;

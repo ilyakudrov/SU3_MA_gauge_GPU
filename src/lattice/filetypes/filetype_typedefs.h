@@ -57,7 +57,7 @@ std::ostream& operator<<(std::ostream& out, ReinterpretReal& t)
 
 
 
-enum FileType {PLAIN, HEADERONLY, VOGT, ILDG};
+enum FileType {PLAIN, HEADERONLY, VOGT, ILDG, QCDSTAG};
 
 std::istream& operator>>(std::istream& in, FileType& t)
 {
@@ -71,6 +71,8 @@ std::istream& operator>>(std::istream& in, FileType& t)
     	t = VOGT;
     else if (boost::iequals(token, "ILDG" ) )
     	t = ILDG;
+    else if (boost::iequals(token, "QCDSTAG" ) )
+    	t = QCDSTAG;
     return in;
 }
 
@@ -85,6 +87,8 @@ std::ostream& operator<<(std::ostream& out, FileType& t)
     	token = "VOGT";
     else if (t == ILDG )
     	token = "ILDG";
+    else if (t == QCDSTAG )
+    	token = "QCDSTAG";
     out << token;
     return out;
 }
