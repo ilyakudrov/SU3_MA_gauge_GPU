@@ -53,6 +53,12 @@ const int arraySize = Nt*Nx*Ny*Nz*Ndim*Nc*Nc*2;
 typedef StandardPattern<SiteCoord<Ndim,NO_SPLIT>,Ndim,Nc> Standard;
 typedef GpuPattern< SiteCoord<Ndim,FULL_SPLIT>,Ndim,Nc> Gpu;
 
+void readILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
+void writeILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const char *output_name, const short SIZE[4], Real *U, int steps);
+
+bool readQCDSTAG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
+bool writeQCDSTAG(SiteCoord<4,FULL_SPLIT> s, const char *output_name, const short SIZE[4], Real *U);
+
 int main(int argc, char* argv[])
 {
 	Chronotimer allTimer;
@@ -83,8 +89,6 @@ int main(int argc, char* argv[])
 	printf("\nDevice %d: \"%s\"\n", selectedDeviceNumber, deviceProp.name);
 	printf("CUDA Capability Major/Minor version number:    %d.%d\n\n", deviceProp.major, deviceProp.minor);
 
-
-
 	// SiteCoord is faster than SiteIndex when loading files
 	SiteCoord<4,FULL_SPLIT> s(HOST_CONSTANTS::SIZE);
 
@@ -111,8 +115,6 @@ int main(int argc, char* argv[])
 	// copy neighbour table to device
 	cudaMemcpy( dNn, nn, s.getLatticeSize()*(2*(Ndim))*sizeof( lat_index_t ), cudaMemcpyHostToDevice );
 
-
-
 	// TODO maybe we should choose the filetype at compile time
 	LinkFile<FileHeaderOnly, Standard, Gpu, SiteCoord<4,FULL_SPLIT> > lfHeaderOnly( options.getReinterpret() );
 	LinkFile<FileVogt, Standard, Gpu, SiteCoord<4,FULL_SPLIT> > lfVogt( options.getReinterpret() );
@@ -121,7 +123,6 @@ int main(int argc, char* argv[])
 
 	int threadsPerBlock = NSB*8; // NSB sites are updated within a block (8 threads are needed per site)
 	int numBlocks = s.getLatticeSize()/2/NSB; // // half of the lattice sites (a parity) are updated in a kernel call
-
 
 	GaugeFixingStats<Ndim,Nc,LandauKernelsSU3,AVERAGE> gaugeStats( dU, HOST_CONSTANTS::SIZE );
 
@@ -141,7 +142,7 @@ int main(int argc, char* argv[])
 
 		if( !options.isSetHot() ) // load a file
 		{
-			cout << "loading " << fi.getFilename() << " as " << options.getFType() << endl;
+			//cout << "loading " << fi.getFilename() << " as " << options.getFType() << endl;
 			switch( options.getFType() )
 			{
 			case VOGT:
@@ -153,6 +154,13 @@ int main(int argc, char* argv[])
 			case HEADERONLY:
 				loadOk = lfHeaderOnly.load( s, fi.getFilename(), U );
 				break;
+                        case ILDG:
+                                loadOk = true;
+                                readILDG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                                break;
+                        case QCDSTAG:
+                                loadOk = readQCDSTAG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                                break;
 			default:
 				cout << "Filetype not set to a known value. Exiting...";
 				exit(1);
@@ -292,6 +300,13 @@ int main(int argc, char* argv[])
 			case HEADERONLY:
 				loadOk = lfHeaderOnly.save( s, fi.getOutputFilename(), U );
 				break;
+                        case ILDG:
+                                loadOk = true;
+                                writeILDG(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
+                                break;
+                        case QCDSTAG:
+                                loadOk = writeQCDSTAG(s, fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                                break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";
 				exit(1);

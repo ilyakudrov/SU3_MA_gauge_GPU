@@ -202,6 +202,10 @@ int main(int argc, char* argv[])
 			// we copy from host in every gaugecopy step to have a cleaner configuration (concerning numerical errors)
 			if( !options.isSetHot() ) cudaMemcpy( dU, U, arraySize*sizeof(Real), cudaMemcpyHostToDevice );
 
+
+                        gaugeStats.generateGaugeQuality();
+                        cout<<"initial functional "<<gaugeStats.getCurrentGff()<<endl;
+
 			if( options.isRandomTrafo() ) // I'm an optimist! This should be called isRandomTrafo()!
 			{
 				MAGKernelsSU3::randomTrafo(numBlocks,threadsPerBlock,dU, dNn, 0, options.getSeed(), PhiloxWrapper::getNextCounter() );
@@ -227,7 +231,7 @@ int main(int argc, char* argv[])
 			//for( int i = 0; i < options.getSaSteps(); i++ )
 			do
 			{
-				if((temperature <= 0.8) && (temperature >= 0.7))
+				if((temperature <= 0.88) && (temperature >= 0.7))
 					tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps()/15;
 				else
 					tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
@@ -326,7 +330,7 @@ int main(int argc, char* argv[])
 			// reconstruct third line
 			CommonKernelsSU3::projectSU3( s.getLatticeSize()/32,32, dU, HOST_CONSTANTS::getPtrToDeviceSize() );
 
-			//gaugeStats.generateGaugeQuality();
+			gaugeStats.generateGaugeQuality();
                         output << copy<<","<<gaugeStats.getCurrentGff()<<endl;
 
 			// check for best copy

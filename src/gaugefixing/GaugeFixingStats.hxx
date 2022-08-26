@@ -189,14 +189,16 @@ template<int Ndim, int Nc, class GType, StoppingCrit ma> void GaugeFixingStats<N
 	GType::generateGaugeQualityPerSite(site.getLatticeSize()/NSB, NSB, U, dGff, dA );
 //	generateGaugeQualityPerSite<Ndim,Nc,lc,ma><<<site.getLatticeSize()/32,32>>>(U, dGff, dA, dSize);
 
-	reduce1GaugeQuality<<<site.getLatticeSize()/redBlockSize,redBlockSize>>>(dGff, dA, ma);
-	reduce2GaugeQuality<<<site.getLatticeSize()/redBlockSize/redBlockSize,redBlockSize>>>(dGff, dA, ma);
-	reduce3GaugeQuality<<<1,site.getLatticeSize()/redBlockSize/redBlockSize>>>(dGff, dA, redBlockSize, ma);
+	//reduce1GaugeQuality<<<site.getLatticeSize()/redBlockSize,redBlockSize>>>(dGff, dA, ma);
+	//reduce2GaugeQuality<<<site.getLatticeSize()/redBlockSize/redBlockSize,redBlockSize>>>(dGff, dA, ma);
+	//reduce3GaugeQuality<<<1,site.getLatticeSize()/redBlockSize/redBlockSize>>>(dGff, dA, redBlockSize, ma);
 
-//		reduceGaugeQuality<<<1,1>>>(dGff,dA,site.getLatticeSize(), ma);
+		reduceGaugeQuality<<<1,1>>>(dGff,dA,site.getLatticeSize(), ma);
 
 	cudaMemcpy( &currentGff, dGff, sizeof(double), cudaMemcpyDeviceToHost );
 	cudaMemcpy( &currentA,   dA,   sizeof(double), cudaMemcpyDeviceToHost );
+
+        //printf("currentGff = %f\n", currentGff);
 	
 	currentGff = currentGff*GType::getGaugeQualityPrefactorGff()/double(site.getLatticeSize());
 	currentA   = currentA*GType::getGaugeQualityPrefactorA();

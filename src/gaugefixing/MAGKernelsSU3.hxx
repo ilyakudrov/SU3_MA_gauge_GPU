@@ -110,9 +110,6 @@ private:
 };
 
 
-
-
-
 namespace MAGKSU3
 {
 
@@ -143,6 +140,11 @@ __global__ void generateGaugeQualityPerSite( Real *U, double *dGff, double *dA )
 		locUp.assignWithoutThirdLine( globUp );
 		locUp.reconstructThirdLine();
 
+                /*if(site == 0 && mu == 0){
+                  printf("site = %i\n", site);
+                  locUp.print();
+                }*/
+
 		s.setNeighbour(mu,false);
 		TLink linkDw( U, s, mu );
 		SU3<TLink> globDw( linkDw );
@@ -154,8 +156,15 @@ __global__ void generateGaugeQualityPerSite( Real *U, double *dGff, double *dA )
 		locDw.reconstructThirdLine();
 
 		// action:
-		for( int j=0; j<3; j++ )
+		for( int j=0; j<3; j++ ){
+                        /*if(site == 0 && mu == 0){
+                          printf("Gff = %f\n", dGff[site]);
+                        }*/
 			dGff[site] += locUp.get(j,j).abs_squared();
+                }
+                /*if(site == 0 && mu == 0){
+                  printf("Gff = %f\n", dGff[site]);
+                }*/
 
 //		// precision:
 //		for( int i=0; i<2; i++ )

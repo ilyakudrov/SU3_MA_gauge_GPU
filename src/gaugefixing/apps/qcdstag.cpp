@@ -1,5 +1,6 @@
 #include "../../lattice/SiteCoord.hxx"
 #include "../../lattice/access_pattern/GpuPattern.hxx"
+#include "../../lattice/access_pattern/StandardPattern.hxx"
 #include "../../lattice/datatype/datatypes.h"
 #include "include/c-lime/lime.h"
 #include "include/c-lime/lime_config.h"
@@ -27,6 +28,8 @@ bool readQCDSTAG(SiteCoord<4, FULL_SPLIT> s, const char *file_name,
     return false;
   }
 
+  //SiteCoord<4, NO_SPLIT> s1(SIZE);
+
   int unique;
   int mu1;
   for (int t = 0; t < SIZE[0]; t++) {
@@ -41,7 +44,29 @@ bool readQCDSTAG(SiteCoord<4, FULL_SPLIT> s, const char *file_name,
             for (int j = 0; j < 3; j++) {
               for (int k = 0; k < 3; k++) {
                 for (int c = 0; c < 2; c++) {
-                  unique = (t * SIZE[1] * SIZE[2] * SIZE[3] +
+                  /*unique = (t * SIZE[1] * SIZE[2] * SIZE[3] +
+                            x * SIZE[3] * SIZE[2] + y * SIZE[3] + z) *
+                               4 * 18 +
+                           mu1 * 18 + j * 6 + k * 2 + c;*/
+                  s.site[0] = t;
+                  s.site[1] = x;
+                  s.site[2] = y;
+                  s.site[3] = z;
+                  //unique = StandardPattern<SiteCoord<4, NO_SPLIT>, 4,
+                                           //3>::getUniqueIndex(s1, mu1, j, k, c);
+                  /*U[GpuPattern<SiteCoord<4, FULL_SPLIT>, 4,
+                               3>::getIndexByUnique(unique, s.size)] =
+                      v[(mu1 * SIZE[0] * SIZE[1] * SIZE[2] * SIZE[3] +
+                         t * SIZE[1] * SIZE[2] * SIZE[3] +
+                         z * SIZE[1] * SIZE[2] + y * SIZE[1] + x) *
+                            18 +
+                        j * 6 + k * 2 + c];*/
+                  U[GpuPattern<SiteCoord<4, FULL_SPLIT>, 4, 3>::getIndex(s, mu, j, k, (bool)c)] =
+                      v[(mu * SIZE[0] * SIZE[1] * SIZE[2] * SIZE[3] +
+                         t * SIZE[1] * SIZE[2] * SIZE[3] +
+                         z * SIZE[1] * SIZE[2] + y * SIZE[1] + x) * 18 +
+                         j * 6 + k * 2 + c];
+                  /*unique = (t * SIZE[1] * SIZE[2] * SIZE[3] +
                             x * SIZE[3] * SIZE[2] + y * SIZE[3] + z) *
                                4 * 18 +
                            mu1 * 18 + j * 6 + k * 2 + c;
@@ -51,7 +76,7 @@ bool readQCDSTAG(SiteCoord<4, FULL_SPLIT> s, const char *file_name,
                          t * SIZE[1] * SIZE[2] * SIZE[3] +
                          z * SIZE[1] * SIZE[2] + y * SIZE[1] + x) *
                             18 +
-                        j * 6 + k * 2 + c];
+                        j * 6 + k * 2 + c];*/
                 }
               }
             }
