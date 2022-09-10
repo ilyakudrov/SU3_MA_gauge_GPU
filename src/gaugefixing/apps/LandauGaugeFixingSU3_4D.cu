@@ -154,13 +154,13 @@ int main(int argc, char* argv[])
 			case HEADERONLY:
 				loadOk = lfHeaderOnly.load( s, fi.getFilename(), U );
 				break;
-                        case ILDG:
-                                loadOk = true;
-                                readILDG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
-                                break;
-                        case QCDSTAG:
-                                loadOk = readQCDSTAG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
-                                break;
+            case ILDG:
+                loadOk = true;
+                readILDG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                break;
+            case QCDSTAG:
+                loadOk = readQCDSTAG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                break;
 			default:
 				cout << "Filetype not set to a known value. Exiting...";
 				exit(1);
@@ -284,7 +284,7 @@ int main(int argc, char* argv[])
 				cout << "NO BETTER COPY" << endl;
 			}
 		}
-		
+
 		//saving file
 		if( !options.isSetHot() )
 		{
@@ -300,13 +300,13 @@ int main(int argc, char* argv[])
 			case HEADERONLY:
 				loadOk = lfHeaderOnly.save( s, fi.getOutputFilename(), U );
 				break;
-                        case ILDG:
-                                loadOk = true;
-                                writeILDG(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
-                                break;
-                        case QCDSTAG:
-                                loadOk = writeQCDSTAG(s, fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U);
-                                break;
+            case ILDG:
+                loadOk = true;
+                writeILDG(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
+                break;
+            case QCDSTAG:
+                loadOk = writeQCDSTAG(s, fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";
 				exit(1);
