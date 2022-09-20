@@ -58,11 +58,11 @@ typedef StandardPattern<SiteCoord<Ndim,NO_SPLIT>,Ndim,Nc> Standard;
 typedef GpuPattern< SiteCoord<Ndim,FULL_SPLIT>,Ndim,Nc> GpuTimeslice;
 typedef GpuPatternTimeslice<SiteCoord<Ndim,FULL_SPLIT>,Ndim,Nc> Gpu;
 
-void readILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
-void writeILDG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const char *output_name, const short SIZE[4], Real *U, int steps);
+void readILDG_timeslice(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
+void writeILDG_timeslice(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const char *output_name, const short SIZE[4], Real *U, int steps);
 
-bool readQCDSTAG(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
-bool writeQCDSTAG(SiteCoord<4,FULL_SPLIT> s, const char *output_name, const short SIZE[4], Real *U);
+bool readQCDSTAG_timeslice(SiteCoord<4,FULL_SPLIT> s, const char *file_name, const short SIZE[4], Real *U);
+bool writeQCDSTAG_timeslice(SiteCoord<4,FULL_SPLIT> s, const char *output_name, const short SIZE[4], Real *U);
 
 int main(int argc, char* argv[])
 {
@@ -175,10 +175,10 @@ int main(int argc, char* argv[])
 				break;
 			case ILDG:
                 loadOk = true;
-                readILDG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                readILDG_timeslice(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
                 break;
             case QCDSTAG:
-                loadOk = readQCDSTAG(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                loadOk = readQCDSTAG_timeslice(s, fi.getFilename().c_str(), HOST_CONSTANTS::SIZE, U);
                 break;
 			default:
 				cout << "Filetype not set to a known value. Exiting...";
@@ -334,10 +334,10 @@ int main(int argc, char* argv[])
 				break;
 			case ILDG:
                 loadOk = true;
-                writeILDG(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
+                writeILDG_timeslice(s, fi.getFilename().c_str(), fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U, options.getSaSteps());
                 break;
             case QCDSTAG:
-                loadOk = writeQCDSTAG(s, fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U);
+                loadOk = writeQCDSTAG_timeslice(s, fi.getOutputFilename().c_str(), HOST_CONSTANTS::SIZE, U);
                 break;
 			default:
 				cout << "Filetype not set to a known value. Exiting";

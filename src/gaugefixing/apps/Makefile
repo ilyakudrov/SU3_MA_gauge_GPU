@@ -59,7 +59,7 @@ CUOBJ = $(APP)_$(PREC)_N$(X)T$(T).o
 # libs for the linking process
 LIBS = -L/home/itep/kudrov/installed/boost/lib -lboost_program_options
 # flags for the NVCC compiler
-CUFLAGS = --ptxas-options=-v -arch=sm_35 -use_fast_math -Xptxas -dlcm=cg
+CUFLAGS = --ptxas-options=-v -arch=sm_61 -use_fast_math -Xptxas -dlcm=cg
 # flags for the CC compiler
 CCFLAGS = -O3 -I/home/itep/kudrov/installed/boost/include
 
