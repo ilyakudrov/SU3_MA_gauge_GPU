@@ -155,6 +155,10 @@ public:
 		return saveEach;
 	}
 
+	bool getDoSA() const {
+		return doSA;
+	}
+
 private:
 	boost::program_options::variables_map options_vm;
 	boost::program_options::options_description options_desc;
@@ -168,6 +172,7 @@ private:
 	std::string outputConf;
 	std::string outputEnding;
 	bool saveEach;
+	bool doSA;
 
 	int deviceNumber;
 
@@ -223,6 +228,7 @@ int ProgramOptions::init( int argc, char* argv[] )
 			("output_conf", boost::program_options::value<std::string>(&outputConf), "path for output configuration (part before numbering starts)")
 			("output_ending", boost::program_options::value<std::string>(&outputEnding)->default_value(""), "file ending to append to output_conf (default: "")")
 			("save_each", boost::program_options::value<bool>(&saveEach)->default_value(false), "true - save each gauge copy, false - not (default: false)")
+			("doSA", boost::program_options::value<bool>(&doSA)->default_value(true), "true - do simulated annealing, false - don't do (default: true)")
 
 			("devicenumber,D", boost::program_options::value<int>(&deviceNumber)->default_value(-1), "number of the CUDA device (or -1 for auto selection)")
 

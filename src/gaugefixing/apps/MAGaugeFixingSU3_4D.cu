@@ -220,53 +220,55 @@ int main(int argc, char* argv[])
 
 
 			// SIMULATED ANNEALING
-			if( options.getSaSteps() > 0 ) printf( "SIMULATED ANNEALING\n" );
-			float temperature = options.getSaMax();
-			float tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
-			float temperature_min = options.getSaMin();
+			if (options.getDoSA()) {
+				if( options.getSaSteps() > 0 ) printf( "SIMULATED ANNEALING\n" );
+				float temperature = options.getSaMax();
+				float tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
+				float temperature_min = options.getSaMin();
 
-			kernelTimer.reset();
-			kernelTimer.start();
-			int i = 0;
-			//for( int i = 0; i < options.getSaSteps(); i++ )
-			do
-			{
-				if((temperature <= 0.88) && (temperature >= 0.7))
-					tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps()/15;
-				else
-					tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
+				kernelTimer.reset();
+				kernelTimer.start();
+				int i = 0;
+				//for( int i = 0; i < options.getSaSteps(); i++ )
+				do
+				{
+					if((temperature <= 0.88) && (temperature >= 0.7))
+						tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps()/15;
+					else
+						tempStep = (options.getSaMax()-options.getSaMin())/(float)options.getSaSteps();
 
-				for(int j = 0;j < 5;j++){
-					MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 0, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
-					MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 1, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
+					for(int j = 0;j < 5;j++){
+						MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 0, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
+						MAGKernelsSU3::saStep(numBlocks,threadsPerBlock,dU, dNn, 1, temperature, options.getSeed(), PhiloxWrapper::getNextCounter() );
 
-					for( int mic = 0; mic < options.getSaMicroupdates(); mic++ )
-					{
-						MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 0 );
-						MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 1 );
+						for( int mic = 0; mic < options.getSaMicroupdates(); mic++ )
+						{
+							MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 0 );
+							MAGKernelsSU3::microStep(numBlocks,threadsPerBlock,dU, dNn, 1 );
+						}
 					}
-				}
 
-				if( i % options.getReproject() == 0 )
-				{
-					CommonKernelsSU3::projectSU3( s.getLatticeSize()/32,32, dU, HOST_CONSTANTS::getPtrToDeviceSize() );
-				}
+					if( i % options.getReproject() == 0 )
+					{
+						CommonKernelsSU3::projectSU3( s.getLatticeSize()/32,32, dU, HOST_CONSTANTS::getPtrToDeviceSize() );
+					}
 
-				/*if( i % options.getCheckPrecision() == 0 )
-				{
-					gaugeStats.generateGaugeQuality();
-					printf( "%d\t\t%1.10f\t\t%e\n", i, gaugeStats.getCurrentGff(), gaugeStats.getCurrentA() );
-				}*/
-				//gaugeStats.generateGaugeQuality();
-				//output << temperature<<","<<gaugeStats.getCurrentGff()<<endl;
-				temperature -= tempStep;
+					/*if( i % options.getCheckPrecision() == 0 )
+					{
+						gaugeStats.generateGaugeQuality();
+						printf( "%d\t\t%1.10f\t\t%e\n", i, gaugeStats.getCurrentGff(), gaugeStats.getCurrentA() );
+					}*/
+					//gaugeStats.generateGaugeQuality();
+					//output << temperature<<","<<gaugeStats.getCurrentGff()<<endl;
+					temperature -= tempStep;
 
-				i++;
-			}while(temperature >= temperature_min);
-			cudaDeviceSynchronize();
-			kernelTimer.stop();
-			cout << "kernel time: " << kernelTimer.getTime() << " s"<< endl;
-			saTotalKernelTime += kernelTimer.getTime();
+					i++;
+				}while(temperature >= temperature_min);
+				cudaDeviceSynchronize();
+				kernelTimer.stop();
+				cout << "kernel time: " << kernelTimer.getTime() << " s"<< endl;
+				saTotalKernelTime += kernelTimer.getTime();
+			}
 
 
 			// STOCHASTIC RELAXATION
