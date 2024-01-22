@@ -380,7 +380,7 @@ int main(int argc, char* argv[])
 
 
 		//saving file
-		if( !options.isSetHot() )
+		if( !options.isSetHot() && !options.getSaveEach())
 		{
 			cout << "saving " << fi.getOutputFilename() << " as " << options.getFType() << endl;
 
