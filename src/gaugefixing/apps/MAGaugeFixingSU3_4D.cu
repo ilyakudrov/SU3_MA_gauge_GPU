@@ -344,10 +344,9 @@ int main(int argc, char* argv[])
 				// copy back
 				cudaMemcpy( U, dU, arraySize*sizeof(Real), cudaMemcpyDeviceToHost );
 
-				if(copy < options.getGaugeCopies() - 1 && options.getSaveEach()){
-						std::cout<<"ok"<<std::endl;
+				if(copy < options.getGaugeCopies() && options.getSaveEach()){
 				stringstream filename(stringstream::out);
-				filename << fi.getOutputFilename() << "_" << copy + 1;
+				filename << fi.getOutputFilename() << "_" << copy;
 				string copy_path = filename.str();
 				switch( options.getFType() ) {
 					case VOGT:

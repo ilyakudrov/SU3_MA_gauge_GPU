@@ -190,10 +190,10 @@ int main(int argc, char* argv[])
 		double bestGff = 0.0;
 		for( int copy = 0; copy < options.getGaugeCopies(); copy++ )
 		{
+			std::cout<<"copy "<<copy<<std::endl;
 			// we copy from host in every gaugecopy step to have a cleaner configuration (concerning numerical errors)
 			// it would be best to keep a completely clean copy on host side
 			if( !options.isSetHot() ) cudaMemcpy( dU, U, arraySize*sizeof(Real), cudaMemcpyHostToDevice );
-
 
 			if( options.isRandomTrafo() )
 			{
