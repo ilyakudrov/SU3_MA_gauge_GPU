@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
                         output << copy<<","<<gaugeStats.getCurrentGff()<<endl;
 
 			// check for best copy
-			if( gaugeStats.getCurrentGff() > bestGff )
+			if( gaugeStats.getCurrentGff() > bestGff || !options.getSaveBest() )
 			{
 				cout << "FOUND BETTER COPY" << endl;
 				bestGff = gaugeStats.getCurrentGff();
